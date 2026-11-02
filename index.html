@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090b14">
+  <meta name="description" content="NYRA — your personal AI assistant">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <title>NYRA AI</title>
+  <style>
+    :root{color-scheme:dark;--bg:#090b14;--panel:#121625;--panel2:#1a2032;--line:#293149;--text:#f4f5fb;--muted:#aab2c8;--accent:#a78bfa;--accent2:#6ee7d8}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#29234c 0,transparent 48%),var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+    .app{max-width:760px;margin:auto;min-height:100vh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+    header{display:flex;align-items:center;gap:12px;padding:18px 4px;border-bottom:1px solid var(--line)}
+    .logo{width:44px;height:44px;border-radius:15px;background:linear-gradient(145deg,#b69aff,#5ce1d0);display:grid;place-items:center;color:#101222;font-weight:900;font-size:20px}
+    h1{font-size:20px;margin:0;letter-spacing:2px}header small{color:var(--muted)}.status{margin-left:auto;color:var(--accent2);font-size:12px}
+    .intro{padding:24px 8px 14px}.intro h2{font-size:25px;margin:0 0 7px}.intro p{color:var(--muted);margin:0;line-height:1.5}
+    #chat{flex:1;display:flex;flex-direction:column;gap:12px;padding:12px 2px 20px;min-height:250px}
+    .msg{max-width:88%;padding:12px 15px;border:1px solid var(--line);border-radius:18px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+    .bot{align-self:flex-start;background:var(--panel)}.user{align-self:flex-end;background:#292449;border-color:#51417b}
+    .hint{display:flex;gap:8px;flex-wrap:wrap;padding:0 2px 12px}.chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:8px 12px;font-size:12px}
+    .composer{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 20%);padding:12px 0 calc(12px + env(safe-area-inset-bottom));display:flex;gap:8px}
+    textarea{resize:none;min-height:48px;max-height:120px;flex:1;background:var(--panel);border:1px solid var(--line);border-radius:16px;color:var(--text);padding:13px;font:inherit;outline:none}
+    button{border:0;border-radius:15px;padding:0 16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#101222;font-weight:800;font-size:14px}
+    button:disabled{opacity:.5}.foot{text-align:center;color:#77809a;font-size:11px;padding:0 0 10px}
+    .typing{color:var(--muted);font-size:13px;padding:4px 8px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header><div class="logo">N</div><div><h1>NYRA</h1><small>Your personal AI assistant</small></div><div class="status">● Ready</div></header>
+  <section class="intro"><h2>Hey, Boss ✨</h2><p>Main NYRA hoon. Yahan se hum apni conversation shuru kar sakte hain.</p></section>
+  <main id="chat" aria-live="polite"><div class="msg bot">Hello Boss! 💜<br>Main NYRA hoon. Message bhejo — AI connection set hone ke baad main tumhe jawab de paungi.</div></main>
+  <div class="hint"><button class="chip" type="button" data-prompt="Introduce yourself">Introduce yourself</button><button class="chip" type="button" data-prompt="Give me ideas for today">Ideas for today</button></div>
+  <form class="composer" id="form"><textarea id="input" rows="1" placeholder="Message NYRA..." aria-label="Message"></textarea><button id="send" type="submit">Send</button></form>
+  <div class="foot">NYRA • Early preview • Mic and device controls are not enabled yet</div>
+</div>
+<script>
+const chat=document.querySelector('#chat'), input=document.querySelector('#input'), form=document.querySelector('#form'), send=document.querySelector('#send');
+function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d}
+async function sendMessage(text){if(!text.trim())return;add(text,'user');input.value='';send.disabled=true;const wait=add('NYRA is thinking…','bot');
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});if(!r.ok)throw new Error('API not ready');const data=await r.json();wait.textContent=data.reply||'I could not create a reply.'}
+ catch(e){wait.textContent='Boss, mera AI connection abhi configure nahi hua hai. PWA ready hai; next step mein Cloudflare AI connection set karenge.'}
+ finally{send.disabled=false;input.focus();chat.scrollTop=chat.scrollHeight}}
+form.addEventListener('submit',e=>{e.preventDefault();sendMessage(input.value)});
+document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>sendMessage(b.dataset.prompt)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+</script>
+</body></html>

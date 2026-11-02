@@ -1,0 +1,17 @@
+{
+  "name": "NYRA AI Assistant",
+  "short_name": "NYRA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090b14",
+  "theme_color": "#090b14",
+  "description": "NYRA personal AI assistant",
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
